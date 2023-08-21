@@ -28,3 +28,26 @@ Os 3 contextos deverão retornar erro nos logs caso o tempo de execução seja i
 O client.go terá que salvar a cotação atual em um arquivo "cotacao.txt" no formato: Dólar: {valor}
 
 O endpoint necessário gerado pelo server.go para este desafio será: /cotacao e a porta a ser utilizada pelo servidor HTTP será a 8080.
+
+## Banco de Dados SQLlite
+
+Construindo tabela:
+
+`CREATE TABLE IF NOT EXISTS quotations
+(
+  id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+  dollar TEXT
+);`
+
+## Executar a aplicação
+
+Cliente: `go run client\client.go`
+Servidor: `go run server\server.go`
+
+## Testar a aplicação
+
+Pode ser utilizado o arquivo app.teste.http para solicitar ao servidor a requisição: GET /cotacao
+
+Teste pela ferramenta curl:
+
+`curl http://localhost:8080/cotacao`

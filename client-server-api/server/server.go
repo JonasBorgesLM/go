@@ -2,25 +2,36 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"time"
+
+	_ "modernc.org/sqlite"
 )
 
-type USDBRL struct {
-	Code       string `json:"-"`
-	Codein     string `json:"-"`
-	Name       string `json:"-"`
-	High       string `json:"-"`
-	Low        string `json:"-"`
-	VarBid     string `json:"-"`
-	PctChange  string `json:"-"`
+type ListQuotation struct {
+	Quotation Quotation `json:"USDBRL"`
+}
+
+type Quotation struct {
+	ID         int    `gorm:"primaryKey"`
+	Code       string `json:"code"`
+	Codein     string `json:"codein"`
+	Name       string `json:"name"`
+	High       string `json:"high"`
+	Low        string `json:"low"`
+	VarBid     string `json:"varBid"`
+	PctChange  string `json:"pctChange"`
 	Bid        string `json:"bid"`
-	Ask        string `json:"-"`
-	Timestamp  string `json:"-"`
-	CreateDate string `json:"-"`
+	Ask        string `json:"ask"`
+	Timestamp  string `json:"timestamp"`
+	CreateDate string `json:"create_date"`
+}
+
+type Dollar struct {
+	Dollar string `json:"dollar"`
 }
 
 func main() {
@@ -29,45 +40,68 @@ func main() {
 }
 
 func cotacao(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
+	const file string = "./server/db/server.db"
 
-	ctx, cancel := context.WithTimeout(ctx, 2010*time.Millisecond)
+	db, err := sql.Open("sqlite", file)
+	if err != nil {
+		log.Println("Error: Establishing a Database Connection")
+	}
+	defer db.Close()
+
+	ctx := r.Context()
+	ctx, cancel := context.WithTimeout(ctx, 200*time.Millisecond)
 	defer cancel()
 
-	dolarCotation(ctx)
-}
-
-func dolarCotation(ctx context.Context) {
-	req, err := getBidUSDBRL()
+	quotation, err := getQuotationUSDBRL(ctx)
 	if err != nil {
-		log.Println("Get quote from api failed")
+		log.Println("Error: Request for dollar quotation canceled")
 	}
-	fmt.Println(req)
 
-	select {
-	case <-ctx.Done():
-		log.Println("Request for dollar quotation canceled")
-	case <-time.After(200 * time.Millisecond):
-		log.Println("Segunda ação")
+	ctx2, cancel := context.WithTimeout(context.Background(), 10*time.Millisecond)
+	defer cancel()
+
+	dollar := Dollar{Dollar: quotation.Bid}
+	err = insertQuotation(ctx2, db, &dollar)
+	if err != nil {
+		log.Println("Error: Request for insert canceled")
+	}
+
+	err = json.NewEncoder(w).Encode(dollar)
+	if err != nil {
+		log.Println("Error: Failed to encode")
 	}
 }
 
-func getBidUSDBRL() (*USDBRL, error) {
+func getQuotationUSDBRL(ctx context.Context) (*Quotation, error) {
 	req, err := http.Get("https://economia.awesomeapi.com.br/json/last/USD-BRL")
 	if err != nil {
-		log.Println("Request to API failed")
+		log.Println("Error: Request to API failed")
 		return nil, err
 	}
 	defer req.Body.Close()
 
-	var bid USDBRL
-
-	err = json.NewDecoder(req.Body).Decode(&bid)
+	var quotations ListQuotation
+	err = json.NewDecoder(req.Body).Decode(&quotations)
 	if err != nil {
-		log.Println("Failed to decode")
+		log.Println("Error: Failed to decode")
 		return nil, err
 	}
-	fmt.Println(bid)
 
-	return &bid, nil
+	return &quotations.Quotation, nil
+}
+
+func insertQuotation(ctx context.Context, db *sql.DB, dollar *Dollar) error {
+	stmt, err := db.Prepare("INSERT INTO quotations(dollar) VALUES($1)")
+	if err != nil {
+		println("Error: Failed to stmt ")
+		return err
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(dollar.Dollar)
+	if err != nil {
+		println("Failed to execute")
+		return err
+	}
+	return nil
 }
