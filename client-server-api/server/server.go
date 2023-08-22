@@ -49,22 +49,16 @@ func cotacao(w http.ResponseWriter, r *http.Request) {
 	defer db.Close()
 
 	ctx := r.Context()
-	ctx, cancel := context.WithTimeout(ctx, 200*time.Millisecond)
-	defer cancel()
+	ctxRequest, cancelRequest := context.WithTimeout(ctx, 200*time.Millisecond)
+	defer cancelRequest()
 
-	quotation, err := getQuotationUSDBRL(ctx)
-	if err != nil {
-		log.Println("Error: Request for dollar quotation canceled")
-	}
+	quotation := getQuotationUSDBRL(ctxRequest)
 
-	ctx2, cancel := context.WithTimeout(context.Background(), 10*time.Millisecond)
-	defer cancel()
+	ctxDB, cancelDB := context.WithTimeout(ctx, 10*time.Millisecond)
+	defer cancelDB()
 
 	dollar := Dollar{Dollar: quotation.Bid}
-	err = insertQuotation(ctx2, db, &dollar)
-	if err != nil {
-		log.Println("Error: Request for insert canceled")
-	}
+	insertQuotation(ctxDB, db, &dollar)
 
 	err = json.NewEncoder(w).Encode(dollar)
 	if err != nil {
@@ -72,36 +66,49 @@ func cotacao(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func getQuotationUSDBRL(ctx context.Context) (*Quotation, error) {
-	req, err := http.Get("https://economia.awesomeapi.com.br/json/last/USD-BRL")
-	if err != nil {
-		log.Println("Error: Request to API failed")
-		return nil, err
-	}
-	defer req.Body.Close()
+func getQuotationUSDBRL(ctx context.Context) *Quotation {
+	select {
+	case <-ctx.Done():
+		log.Println("Error: Request for dollar quotation canceled")
 
-	var quotations ListQuotation
-	err = json.NewDecoder(req.Body).Decode(&quotations)
-	if err != nil {
-		log.Println("Error: Failed to decode")
-		return nil, err
-	}
+		return nil
 
-	return &quotations.Quotation, nil
+	case <-time.After(200 * time.Millisecond):
+		req, err := http.Get("https://economia.awesomeapi.com.br/json/last/USD-BRL")
+		if err != nil {
+			log.Println("Error: Request to API failed")
+
+			return nil
+		}
+		defer req.Body.Close()
+
+		var quotations ListQuotation
+		err = json.NewDecoder(req.Body).Decode(&quotations)
+		if err != nil {
+			log.Println("Error: Failed to decode")
+
+			return nil
+		}
+
+		return &quotations.Quotation
+	}
 }
 
-func insertQuotation(ctx context.Context, db *sql.DB, dollar *Dollar) error {
-	stmt, err := db.Prepare("INSERT INTO quotations(dollar) VALUES($1)")
-	if err != nil {
-		println("Error: Failed to stmt ")
-		return err
-	}
-	defer stmt.Close()
+func insertQuotation(ctx context.Context, db *sql.DB, dollar *Dollar) {
+	select {
+	case <-ctx.Done():
+		log.Println("Error: Request for insert canceled")
 
-	_, err = stmt.Exec(dollar.Dollar)
-	if err != nil {
-		println("Failed to execute")
-		return err
+	case <-time.After(10 * time.Millisecond):
+		stmt, err := db.Prepare("INSERT INTO quotations(dollar) VALUES($1)")
+		if err != nil {
+			log.Println("Error: Failed to stmt")
+		}
+		defer stmt.Close()
+
+		_, err = stmt.Exec(dollar.Dollar)
+		if err != nil {
+			log.Println("Error: Failed to execute")
+		}
 	}
-	return nil
 }

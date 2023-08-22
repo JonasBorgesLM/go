@@ -14,10 +14,13 @@ type Dollar struct {
 }
 
 func main() {
-	quotation := getQuotation()
+	quotation, err := getQuotation()
+	if err != nil {
+		log.Println("Error: Request to server failed")
+	}
 
 	var dollar Dollar
-	err := json.Unmarshal(quotation, &dollar)
+	err = json.Unmarshal(quotation, &dollar)
 	if err != nil {
 		log.Println("Error: Failed to Unmarshal")
 	}
@@ -25,21 +28,23 @@ func main() {
 	writeToFile(dollar)
 }
 
-func getQuotation() []byte {
+func getQuotation() ([]byte, error) {
 	client := http.Client{Timeout: 300 * time.Millisecond}
 
 	req, err := client.Get("http://localhost:8080/cotacao")
 	if err != nil {
 		log.Println("Error: Request to server canceled")
+		return nil, err
 	}
 	defer req.Body.Close()
 
 	resp, err := io.ReadAll(req.Body)
 	if err != nil {
 		log.Println("Error: Failed to read")
+		return nil, err
 	}
 
-	return resp
+	return resp, nil
 }
 
 func writeToFile(dollar Dollar) {
