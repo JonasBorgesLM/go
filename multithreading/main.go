@@ -46,18 +46,18 @@ func NewCep(code string) *Cep {
 	re := regexp.MustCompile(`^\d{5}-\d{3}$`)
 
 	if re.MatchString(code) {
-		cep.Code = fmt.Sprintf("%s%s", code[:5], code[6:])
+		cep.Code = code
 
 		return &cep
 	} else {
-		cep.Code = code
+		cep.Code = fmt.Sprintf("%s-%s", code[:5], code[5:])
 
 		return &cep
 	}
 }
 
 // Faz a requisição a api externa e armazena em um canal
-func getInfoCep(url string, ch chan string) {
+func getInfoCep(api, url string, ch chan string) {
 	req, err := http.Get(url)
 	if err != nil {
 		log.Printf("%s: Error - %v", url, err)
@@ -71,7 +71,7 @@ func getInfoCep(url string, ch chan string) {
 		return
 	}
 
-	ch <- string(resp)
+	ch <- api + "\n" + string(resp)
 }
 
 // Imprime as informações do cep com timeout de 1 second
@@ -81,8 +81,8 @@ func getCep(ctx context.Context, cep Cep) {
 
 	ch := make(chan string)
 
-	go getInfoCep(urlCDN, ch)
-	go getInfoCep(urlVIACEP, ch)
+	go getInfoCep("CDN", urlCDN, ch)
+	go getInfoCep("VIACEP", urlVIACEP, ch)
 
 	select {
 	case <-ctx.Done():
