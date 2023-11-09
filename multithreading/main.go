@@ -26,7 +26,6 @@ func main() {
 		defer cancelRequest()
 
 		getCep(ctxRequest, *cep)
-
 	} else {
 		log.Println("CEP com formato inválido")
 	}
@@ -57,7 +56,7 @@ func NewCep(code string) *Cep {
 }
 
 // Faz a requisição a api externa e armazena em um canal
-func getInfoCep(api, url string, ch chan string) {
+func getInfoCep(api, url string, ch chan<- string) {
 	req, err := http.Get(url)
 	if err != nil {
 		log.Printf("%s: Error - %v", url, err)
@@ -71,7 +70,7 @@ func getInfoCep(api, url string, ch chan string) {
 		return
 	}
 
-	ch <- api + "\n" + string(resp)
+	ch <- api + ": " + string(resp)
 }
 
 // Imprime as informações do cep com timeout de 1 second
@@ -79,7 +78,7 @@ func getCep(ctx context.Context, cep Cep) {
 	urlCDN := "https://cdn.apicep.com/file/apicep/" + cep.Code + ".json"
 	urlVIACEP := "http://viacep.com.br/ws/" + cep.Code + "/json/"
 
-	ch := make(chan string)
+	ch := make(chan string, 2)
 
 	go getInfoCep("CDN", urlCDN, ch)
 	go getInfoCep("VIACEP", urlVIACEP, ch)
@@ -88,8 +87,7 @@ func getCep(ctx context.Context, cep Cep) {
 	case <-ctx.Done():
 		log.Println("Error: Request for cep canceled")
 
-	case <-time.After(1 * time.Second):
-		response := <-ch
-		fmt.Println(response)
+	case firstAnswer := <-ch:
+		fmt.Println(firstAnswer)
 	}
 }
