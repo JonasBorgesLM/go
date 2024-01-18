@@ -13,6 +13,26 @@
 #### Usar o graphql playground para testar o servidor GraphQL:
 [Graphql - playground](http://localhost:8080)
 
+#### Exemplos:
+
+`query queryOrders {
+  orders {
+    id
+    Price
+    Tax
+    FinalPrice
+  }
+}`
+
+`mutation createOrder {
+  createOrder(input: {id: "aaaa", Price: 100, Tax: 1}){
+    id
+    Price
+    Tax
+    FinalPrice
+  }
+}`
+
 #### Usar o evans para testar o servidor gRpc
 `evans -r repl`
 
