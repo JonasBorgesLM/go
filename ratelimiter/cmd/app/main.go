@@ -1,25 +1,28 @@
 package main
 
 import (
-	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/JonasBorgesLM/go/ratelimiter/configs"
+	"github.com/JonasBorgesLM/go/ratelimiter/internal/infra/webserver"
 )
 
 func main() {
+	// Load configurations
 	configs, err := configs.LoadConfig("../../")
 	if err != nil {
+		log.Fatalf("error loading configurations")
+
 		panic(err)
 	}
 
-	fmt.Println(configs.DBDriver)
+	webserver := webserver.NewWebServer(configs)
+	webserver.AddHandler("/", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("OK"))
+	})
 
-	http.HandleFunc("/", Root)
-	http.ListenAndServe(":8080", nil)
-}
-
-func Root(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("o/"))
+	log.Printf("Server listening on %v\n", configs.ServerPort)
+	webserver.Start()
 }

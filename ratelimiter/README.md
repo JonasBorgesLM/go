@@ -21,6 +21,16 @@ O _Rate Limiter_ é um projeto em Go que fornece um mecanismo para controlar a t
 
 ## Instalação
 
+### Testes
+
+Os testes de sobrecarga podem ser feitos através do Apache Bench.
+
+`sudo apt install apache2-utils`
+
+Use comandos para solicitar diversas requisições como o exemplo:
+
+`ab -n 50 -c 1 -k -H  "API_KEY: JONAS"  "http://localhost:8080/"`
+
 ## Contribuições
 
 Contribuições para o projeto Limitador de Taxa são bem-vindas! Sinta-se à vontade para enviar relatórios de bugs, solicitações de funcionalidades ou pull requests através do GitHub.
