@@ -3,8 +3,9 @@ version: "3"
 services:
   app:
     container_name: app
-    build: .
-    tty: true
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
     ports:
       - "8080:8080"
     volumes:
@@ -24,8 +25,6 @@ services:
       - REDIS_PORT=${REDIS_PORT}
       - REDIS_USERNAME=${REDIS_USERNAME}
       - REDIS_PASSWORD=${REDIS_PASSWORD}
-    ports:
-      - 6379:6379
     volumes:
       - ./redis:/data
     networks:

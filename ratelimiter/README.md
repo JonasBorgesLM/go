@@ -21,6 +21,9 @@ O _Rate Limiter_ é um projeto em Go que fornece um mecanismo para controlar a t
 
 ## Instalação
 
+- Clone o repositório.
+- Execute `docker-compose up` para iniciar os serviços.
+
 ### Testes
 
 Os testes de sobrecarga podem ser feitos através do Apache Bench.
