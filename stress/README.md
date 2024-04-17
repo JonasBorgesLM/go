@@ -55,7 +55,7 @@ O _Teste de estresse - CLI_ é um sistema de linha de comando escrito em Go para
 
 ## Contribuições
 
-Contribuições para o projeto Limitador de Taxa são bem-vindas! Sinta-se à vontade para enviar relatórios de bugs, solicitações de funcionalidades ou pull requests através do GitHub.
+Contribuições para o projeto Estresse são bem-vindas! Sinta-se à vontade para enviar relatórios de bugs, solicitações de funcionalidades ou pull requests através do GitHub.
 
 ## Licença
 
