@@ -21,17 +21,37 @@ O _Teste de estresse - CLI_ é um sistema de linha de comando escrito em Go para
   - A quantidade de requests com status HTTP 200.
   - A distribuição de outros códigos de status HTTP, como 404, 500, entre outros.
 
-## Instalação
-
-- Clone o repositório.
-
-## Parameters
+## Parâmetros
 
 - `--url`: URL do serviço a ser testado.
 - `--requests`: Número total de requests.
 - `--concurrency`: Número de chamadas simultâneas.
 
-### Testes
+## Instalação
+
+- Clone o repositório.
+
+### Instalação por Docker
+
+- Build o projeto:
+  `docker build -t stress .`
+
+- Execute o sistema passando argumentos:
+  `docker run stress --url https://google.com --requests 5 --concurrency 3`
+
+- Para mais ajuda basta passar a flag `-h`, `--help`
+  `docker run stress -h`
+
+### Instalação por Build
+
+- Build o projeto:
+  `go build -o stress ./cmd/app/main.go`
+
+- Execute o sistema passando argumentos:
+  `./stress --url https://google.com --requests 5 --concurrency 3`
+
+- Para mais ajuda basta passar a flag `-h`, `--help`
+  `./stress -h`
 
 ## Contribuições
 
