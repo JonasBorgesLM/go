@@ -1,0 +1,6 @@
+.gitignore
+.vscode
+docker*
+Docker*
+README.md
+http-test

@@ -1,0 +1,16 @@
+# Requisicao googleCloud
+GET https://cloudrun-goexpert-7pxqi2elea-uc.a.run.app/clima/37501143 HTTP/1.1
+Content-Type: application/json
+###
+
+## TESTES DE ERROS
+
+# invalid zipcode
+GET https://cloudrun-goexpert-7pxqi2elea-uc.a.run.app/clima/375 HTTP/1.1
+Content-Type: application/json
+###
+
+# can not find ZipCode
+GET https://cloudrun-goexpert-7pxqi2elea-uc.a.run.app/clima/00000000 HTTP/1.1
+Content-Type: application/json
+###

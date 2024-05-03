@@ -1,0 +1,19 @@
+# Requisicao local
+GET http://localhost:8080/clima/37501143 HTTP/1.1
+Host: localhost:8080
+Content-Type: application/json
+###
+
+## TESTES DE ERROS
+
+# invalid zipcode
+GET http://localhost:8080/clima/375 HTTP/1.1
+Host: localhost:8080
+Content-Type: application/json
+###
+
+# can not find ZipCode
+GET http://localhost:8080/clima/00000000 HTTP/1.1
+Host: localhost:8080
+Content-Type: application/json
+###
