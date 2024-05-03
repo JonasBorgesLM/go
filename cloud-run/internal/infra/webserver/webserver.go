@@ -23,17 +23,13 @@ func NewWebServer(port string) *WebServer {
 }
 
 func (s *WebServer) AddHandler(path string, handler http.HandlerFunc) {
-	s.Handlers[path] = handler
-}
-
-func (s *WebServer) Start() {
 	s.Router.Use(middleware.Logger)
 	s.Router.Use(middleware.Recoverer)
 
-	for path, handler := range s.Handlers {
-		s.Router.Handle(path, handler)
-	}
+	s.Router.HandleFunc(path, handler)
+}
 
+func (s *WebServer) Start() {
 	serverPort := fmt.Sprint(":", s.Port)
 	http.ListenAndServe(serverPort, s.Router)
 }

@@ -52,7 +52,11 @@ GET /clima/12345678
 
 ## Deploy
 
-Este sistema está hospedado no Google Cloud Run. Para acessá-lo, utilize o seguinte URL: [URL do Google Cloud Run](URL_do_Sistema_no_Google_Cloud_Run)
+Este sistema está hospedado no Google Cloud Run. Para acessá-lo, utilize o seguinte URL: [URL do Google Cloud Run](https://cloudrun-goexpert-7pxqi2elea-uc.a.run.app)
+
+## Testes
+
+Pode usar os arquivos .http do diretorio /http-test para testar a aplicação tanto localmente quanto na nuvem. Esses arquivos permitem que você defina e execute solicitações HTTP diretamente do seu editor de código.
 
 ## Contribuições
 
