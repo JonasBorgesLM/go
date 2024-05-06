@@ -50,6 +50,11 @@ GET /clima/12345678
   - Código HTTP: 404
   - Mensagem: `can not find zipcode`
 
+## Instalação local
+
+- Clone o repositório.
+- Execute `docker-compose up` para iniciar os serviços.
+
 ## Deploy
 
 Este sistema está hospedado no Google Cloud Run. Para acessá-lo, utilize o seguinte URL: [URL do Google Cloud Run](https://cloudrun-goexpert-7pxqi2elea-uc.a.run.app)
