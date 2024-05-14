@@ -26,15 +26,9 @@ O sistema está sendo monitorado usando Open Telemetry e Zipkin.
 
 ## Endpoints
 
-### GET /clima/{cep}
+### POST / HTTP/1.1 {"cep" : "00000000"}
 
 - **cep**: O CEP válido de 8 dígitos.
-
-#### Exemplo de uso
-
-```
-GET /clima/12345678
-```
 
 #### Respostas
 

@@ -1,8 +1,33 @@
 version: "3"
 
 services:
+  zipValidator:
+    build:
+      context: ./zip-validator
+    image: jonasborgeslm/zip-validator:v1
+    container_name: zip-validator
+    restart: always
+    ports:
+      - "8080:8080"
+    depends_on:
+      - otel-collector
+      - zipkin-all-in-one
+
+  location-weather:
+    build:
+      context: ./location-weather
+    image: jonasborgeslm/location-weather:v1
+    container_name: location-weather
+    restart: always
+    ports:
+      - "8081:8081"
+    depends_on:
+      - otel-collector
+      - zipkin-all-in-one
+
   otel-collector:
     image: otel/opentelemetry-collector:latest
+    container_name: otel-collector
     restart: always
     command: ["--config=/etc/otel-collector-config.yaml"]
     volumes:
@@ -12,6 +37,7 @@ services:
 
   zipkin-all-in-one:
     image: openzipkin/zipkin:latest
+    container_name: zipkin-all-in-one
     restart: always
     ports:
       - "9411:9411"
