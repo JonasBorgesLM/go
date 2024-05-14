@@ -1,0 +1,31 @@
+# Requisicao local
+POST http://localhost:8080 HTTP/1.1
+Host: localhost:8080
+Content-Type: application/json
+
+{
+    "cep" : "13083030"
+}
+###
+
+## TESTES DE ERROS
+
+# invalid zipcode
+POST http://localhost:8080 HTTP/1.1
+Host: localhost:8080
+Content-Type: application/json
+
+{
+    "cep" : "0000"
+}
+###
+
+# cannot find zipcode
+POST http://localhost:8080 HTTP/1.1
+Host: localhost:8080
+Content-Type: application/json
+
+{
+    "cep" : "12345678"
+}
+###
